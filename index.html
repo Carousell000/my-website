@@ -18,32 +18,61 @@
       color: #333;
     }
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
+      font-size: 1.2em; /* Smaller title */
+      margin-top: 20px;
+      color: #333;
     }
     #timer {
-      font-size: 3em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       font-weight: bold;
       background: #fff;
       padding: 20px 40px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 30px;
+      margin: 30px 0;
+    }
+    #days {
+      font-size: 3em;
+    }
+    #details {
+      font-size: 1.5em;
+      color: #0056b3; /* Blue for the USA flag */
+    }
+    #quote-box {
+      background: #fff;
+      padding: 20px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      color: #0056b3; /* Blue text */
+      width: 60%;
+      text-align: center;
+      margin-top: 30px;
     }
     #quote {
-      font-style: italic;
+      font-family: Georgia, serif; /* Different font for quotes */
       font-size: 1.5em;
-      color: #555;
-      padding: 10px 20px;
-      border-top: 1px solid #ddd;
-      margin-top: 30px;
+      margin-bottom: 10px;
+    }
+    #author {
+      font-size: 1em;
+      font-style: italic;
+      color: #333;
     }
   </style>
 </head>
 <body>
   <h1>Countdown to the End of the Trump Presidency</h1>
-  <div id="timer">(Loading...)</div>
-  <div id="quote">(Today's quote is loading...)</div>
+  <div id="timer">
+    <div id="days">(Loading...)</div>
+    <div id="details">(Loading...)</div>
+  </div>
+  <div id="quote-box">
+    <div id="quote">(Loading quote...)</div>
+    <div id="author"></div>
+  </div>
   <script>
     // Target date and time: 10 AM Eastern Time, January 21, 2029
     const targetDate = new Date("2029-01-21T15:00:00Z"); // 15:00 UTC is 10:00 AM ET
@@ -53,7 +82,8 @@
       const timeLeft = targetDate - now;
 
       if (timeLeft <= 0) {
-        document.getElementById("timer").innerText = "The Trump presidency has ended!";
+        document.getElementById("days").innerText = "The Trump presidency has ended!";
+        document.getElementById("details").innerText = "";
         clearInterval(timerInterval);
         return;
       }
@@ -63,8 +93,9 @@
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-      document.getElementById("timer").innerText =
-        `(${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds)`;
+      document.getElementById("days").innerText = `${days} Days`;
+      document.getElementById("details").innerText =
+        `${hours}h ${minutes}m ${seconds}s`;
     }
 
     const timerInterval = setInterval(updateTimer, 1000);
@@ -82,11 +113,16 @@
         const today = new Date().getDate();
         const quoteIndex = today % quotes.length;
 
-        // Display the quote
-        document.getElementById("quote").innerText = quotes[quoteIndex];
+        // Split the quote and author
+        const [quoteText, author] = quotes[quoteIndex].split(';');
+
+        // Display the quote and author
+        document.getElementById("quote").innerText = quoteText.trim();
+        document.getElementById("author").innerText = author.trim();
       } catch (error) {
         console.error("Error loading quotes:", error);
         document.getElementById("quote").innerText = "Could not load the quote.";
+        document.getElementById("author").innerText = "";
       }
     }
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Countdown Timer</title>
+  <title>Countdown Timer with Quotes</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -28,12 +28,22 @@
       padding: 20px 40px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+    #quote {
+      font-style: italic;
+      font-size: 1.5em;
+      color: #555;
+      padding: 10px 20px;
+      border-top: 1px solid #ddd;
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
   <h1>Countdown to the End of the Trump Presidency</h1>
   <div id="timer">(Loading...)</div>
+  <div id="quote">(Today's quote is loading...)</div>
   <script>
     // Target date and time: 10 AM Eastern Time, January 21, 2029
     const targetDate = new Date("2029-01-21T15:00:00Z"); // 15:00 UTC is 10:00 AM ET
@@ -58,7 +68,30 @@
     }
 
     const timerInterval = setInterval(updateTimer, 1000);
+
+    // Daily Quote Functionality
+    async function loadQuotes() {
+      try {
+        const response = await fetch('quotes.csv'); // Fetch the CSV file
+        const data = await response.text();
+
+        // Parse CSV into an array of quotes
+        const quotes = data.split('\n').slice(1).map(line => line.trim());
+
+        // Get the current day's quote
+        const today = new Date().getDate();
+        const quoteIndex = today % quotes.length;
+
+        // Display the quote
+        document.getElementById("quote").innerText = quotes[quoteIndex];
+      } catch (error) {
+        console.error("Error loading quotes:", error);
+        document.getElementById("quote").innerText = "Could not load the quote.";
+      }
+    }
+
+    // Load quotes when the page loads
+    loadQuotes();
   </script>
 </body>
 </html>
-

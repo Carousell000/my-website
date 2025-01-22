@@ -100,21 +100,33 @@
 
     const timerInterval = setInterval(updateTimer, 1000);
 
-    // Daily Quote Functionality
-    async function loadQuotes() {
-      try {
-        const response = await fetch('quotes.csv'); // Fetch the CSV file
-        const data = await response.text();
+// Daily Quote Functionality
+async function loadQuotes() {
+  try {
+    const response = await fetch('quotes.csv'); // Fetch the CSV file
+    const data = await response.text();
 
-        // Parse CSV into an array of quotes
-        const quotes = data.split('\n').slice(1).map(line => line.trim());
+    // Parse CSV into an array of quotes
+    const quotes = data.split('\n').slice(1).map(line => line.trim());
 
-        // Get the current day's quote
-        const today = new Date().getDate();
-        const quoteIndex = today % quotes.length;
+    // Calculate the day index based on Washington time (Eastern Time, UTC-5)
+    const now = new Date();
+    const washingtonOffset = -5 * 60 * 60 * 1000; // UTC-5 in milliseconds
+    const washingtonTime = new Date(now.getTime() + washingtonOffset);
 
-        // Split the quote and author
-        const [quoteText, author] = quotes[quoteIndex].split(';');
+    // Get the start of the day in Washington time
+    const washingtonDayStart = new Date(
+      washingtonTime.getFullYear(),
+      washingtonTime.getMonth(),
+      washingtonTime.getDate(),
+      10, // 10 AM as the new "start of day"
+      0,
+      0,
+      0
+    ).getTime();
+
+    // Calculate the day index
+    const dayIndex = Math.floor(washingtonDayStart / (1000 * 60 * 60 * 24)) % quotes.length;
 
         // Display the quote and author
         document.getElementById("quote").innerText = quoteText.trim();

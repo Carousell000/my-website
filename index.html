@@ -104,42 +104,54 @@
 async function loadQuotes() {
   try {
     const response = await fetch('quotes.csv'); // Fetch the CSV file
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     const data = await response.text();
+    console.log("Fetched CSV Data:", data); // Debugging log
 
     // Parse CSV into an array of quotes
     const quotes = data.split('\n').slice(1).map(line => line.trim());
+    console.log("Parsed Quotes Array:", quotes); // Debugging log
 
-    // Calculate the day index based on Washington time (Eastern Time, UTC-5)
+    // Validate quotes array
+    if (quotes.length === 0) {
+      throw new Error("Quotes array is empty or improperly formatted.");
+    }
+
+    // Calculate the day index
     const now = new Date();
     const washingtonOffset = -5 * 60 * 60 * 1000; // UTC-5 in milliseconds
     const washingtonTime = new Date(now.getTime() + washingtonOffset);
-
-    // Get the start of the day in Washington time
     const washingtonDayStart = new Date(
       washingtonTime.getFullYear(),
       washingtonTime.getMonth(),
       washingtonTime.getDate(),
-      10, // 10 AM as the new "start of day"
-      0,
-      0,
-      0
+      10, 0, 0, 0
     ).getTime();
-
-    // Calculate the day index
     const dayIndex = Math.floor(washingtonDayStart / (1000 * 60 * 60 * 24)) % quotes.length;
 
-        // Display the quote and author
-        document.getElementById("quote").innerText = quoteText.trim();
-        document.getElementById("author").innerText = author.trim();
-      } catch (error) {
-        console.error("Error loading quotes:", error);
-        document.getElementById("quote").innerText = "Could not load the quote.";
-        document.getElementById("author").innerText = "";
-      }
+    // Split the quote and author
+    const quoteData = quotes[dayIndex];
+    if (!quoteData || !quoteData.includes(';')) {
+      throw new Error(`Invalid quote data at index ${dayIndex}: "${quoteData}"`);
     }
 
-    // Load quotes when the page loads
-    loadQuotes();
-  </script>
+    const [quoteText, author] = quoteData.split(';');
+    console.log("Selected Quote:", quoteText, author); // Debugging log
+
+    // Display the quote and author
+    document.getElementById("quote").innerText = quoteText.trim();
+    document.getElementById("author").innerText = author ? author.trim() : "";
+  } catch (error) {
+    console.error("Error loading quotes:", error);
+    document.getElementById("quote").innerText = "Could not load the quote.";
+    document.getElementById("author").innerText = "";
+  }
+}
+// Load quotes when the page loads
+loadQuotes();
+     </script>
 </body>
 </html>

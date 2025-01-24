@@ -77,7 +77,7 @@
   </style>
 </head>
 <body>
-  <h1>End of the Trump Presidency<span>End</span></h1>
+  <h1>Countdown to the <span>End of the Trump Presidency</span></h1>
   <div id="countdown">
     <div id="days">(Loading...)</div>
     <div id="details">(Loading...)</div>
@@ -87,7 +87,7 @@
     <div id="author"></div>
   </div>
   <footer>
-    Made with ❤️ to track the days.
+    Tracking the days with purpose.
   </footer>
   <script>
     // Countdown Timer
@@ -124,7 +124,7 @@
         }
 
         const data = await response.text();
-        const quotes = data.split('\\n').slice(1).map(line => line.trim());
+        const quotes = data.split('\n').slice(1).map(line => line.trim());
         if (quotes.length === 0) {
           throw new Error("Quotes array is empty or improperly formatted.");
         }
@@ -143,8 +143,11 @@
         const dayIndex = Math.floor(washingtonDayStart / (1000 * 60 * 60 * 24)) % quotes.length;
 
         const [quoteText, author] = quotes[dayIndex].split(';');
+        if (!quoteText || !author) {
+          throw new Error(`Invalid quote or author format at index ${dayIndex}`);
+        }
         document.getElementById("quote").innerText = quoteText.trim();
-        document.getElementById("author").innerText = author ? author.trim() : "";
+        document.getElementById("author").innerText = author.trim();
       } catch (error) {
         console.error("Error loading quotes:", error);
         document.getElementById("quote").innerText = "Could not load the quote.";

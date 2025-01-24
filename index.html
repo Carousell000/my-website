@@ -3,102 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Countdown to the End of the Trump Presidency</title>
+  <title>Countdown to the End</title>
   <style>
     body {
-      font-family: 'Lato', sans-serif;
-      background-color: #6793AC;
-      color: #FFFFFF;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      background-color: #0E1A2B; /* Dark navy background */
+      color: #FFFFFF;
       text-align: center;
     }
 
     h1 {
-      font-size: 1.8em;
+      font-size: 2.5em;
       font-weight: 700;
-      margin-bottom: 30px;
-      color: #FFD700; /* Gold title for better contrast */
-      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+      margin: 20px 0;
+      color: #FFFFFF;
     }
 
-    #timer {
-      font-size: 3em;
-      font-weight: bold;
-      margin: 20px 0;
-      background: #FFFFFF;
-      color: #A10D1E;
-      padding: 20px 40px;
+    h1 span {
+      color: #F76C5E; /* Vibrant orange highlight */
+      text-decoration: underline;
+    }
+
+    #countdown {
+      background-color: #1C2C44; /* Slightly lighter navy */
+      color: #F76C5E;
+      padding: 30px;
       border-radius: 15px;
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-      max-width: 80%;
+      display: inline-block;
+      margin: 20px auto;
+      text-align: center;
     }
 
     #days {
-      font-size: 3.5em;
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #A10D1E; /* Dark red for days */
+      font-size: 4em;
+      font-weight: 900;
+      margin: 0;
     }
 
     #details {
-      font-size: 1em;
-      color: #00334E; /* Subtle blue for hours, minutes, seconds */
+      font-size: 1.2em;
+      margin-top: 10px;
+      color: #FFD700; /* Gold for secondary text */
     }
 
     #quote-box {
-      background-color: rgba(255, 255, 255, 0.9); /* Almost white for contrast */
-      padding: 20px 30px;
-      margin-top: 40px;
-      border-radius: 15px;
-      display: inline-block;
-      max-width: 80%;
-      color: #00334E; /* Dark blue for text */
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      background-color: #F1F3F4; /* Light grey for contrast */
+      color: #333333;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 600px;
     }
 
     #quote {
+      font-size: 1.5em;
       font-style: italic;
-      font-size: 1.4em;
-      font-weight: bold;
-      color: #A10D1E; /* Dark red for quotes */
-      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
       margin-bottom: 10px;
     }
 
     #author {
-      font-size: 0.9em;
-      font-style: italic;
-      color: #0056b3; /* Vibrant blue for the author name */
+      font-size: 1em;
+      color: #555555;
     }
 
-    @media (max-width: 768px) {
-      #timer {
-        padding: 15px 30px;
-      }
-
-      #days {
-        font-size: 2.5em; /* Adjusted for smaller screens */
-      }
-
-      #details {
-        font-size: 0.9em; /* Smaller text for details */
-      }
-
-      #quote {
-        font-size: 1.2em; /* Adjust quote size */
-      }
+    footer {
+      font-size: 0.8em;
+      color: #AAAAAA;
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
-  <h1>Countdown to the End of the Trump Presidency</h1>
-  <div id="timer">
+  <h1>Countdown to the <span>End</span></h1>
+  <div id="countdown">
     <div id="days">(Loading...)</div>
     <div id="details">(Loading...)</div>
   </div>
@@ -106,6 +86,9 @@
     <div id="quote">(Loading quote...)</div>
     <div id="author"></div>
   </div>
+  <footer>
+    Made with ❤️ to track the days.
+  </footer>
   <script>
     // Countdown Timer
     const targetDate = new Date("2029-01-21T15:00:00Z"); // 10 AM Washington time
@@ -141,7 +124,7 @@
         }
 
         const data = await response.text();
-        const quotes = data.split('\n').slice(1).map(line => line.trim());
+        const quotes = data.split('\\n').slice(1).map(line => line.trim());
         if (quotes.length === 0) {
           throw new Error("Quotes array is empty or improperly formatted.");
         }

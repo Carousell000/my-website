@@ -3,63 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Days to the end of Trump Presidency</title>
+  <title>Countdown to the End of the Trump Presidency</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      font-family: 'Roboto', sans-serif;
+      background-color: #FFFFFF;
+      color: #333333;
       margin: 0;
-      background-color: #f5f5f5;
-      color: #333;
+      padding: 0;
+      text-align: center;
     }
+
     h1 {
-      font-size: 1.2em; /* Smaller title */
-      margin-top: 20px;
-      color: #333;
+      font-size: 1.2em;
+      font-weight: 300;
+      margin: 20px 0;
+      color: #00334E;
     }
+
     #timer {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
-      background: #fff;
-      padding: 20px 40px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin: 30px 0;
-    }
-    #days {
       font-size: 3em;
+      font-weight: bold;
+      margin-top: 50px;
     }
+
+    #days {
+      color: #A10D1E;
+    }
+
     #details {
       font-size: 1.5em;
-      color: #0056b3; /* Blue for the USA flag */
+      color: #00334E;
     }
+
     #quote-box {
-      background: #fff;
-      padding: 20px 40px;
+      background-color: #D3D3D3;
+      padding: 20px;
+      margin-top: 40px;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      color: #0056b3; /* Blue text */
-      width: 60%;
-      text-align: center;
-      margin-top: 30px;
+      display: inline-block;
+      max-width: 80%;
     }
+
     #quote {
-      font-family: Georgia, serif; /* Different font for quotes */
+      font-style: italic;
       font-size: 1.5em;
-      margin-bottom: 10px;
+      color: #0056b3;
     }
+
     #author {
       font-size: 1em;
       font-style: italic;
-      color: #333;
+      color: #555555;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -74,8 +70,8 @@
     <div id="author"></div>
   </div>
   <script>
-    // Target date and time: 10 AM Eastern Time, January 21, 2029
-    const targetDate = new Date("2029-01-21T15:00:00Z"); // 15:00 UTC is 10:00 AM ET
+    // Countdown Timer
+    const targetDate = new Date("2029-01-21T15:00:00Z"); // 10 AM Washington time
 
     function updateTimer() {
       const now = new Date().getTime();
@@ -94,64 +90,49 @@
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
       document.getElementById("days").innerText = `${days} Days`;
-      document.getElementById("details").innerText =
-        `${hours}h ${minutes}m ${seconds}s`;
+      document.getElementById("details").innerText = `${hours}h ${minutes}m ${seconds}s`;
     }
 
     const timerInterval = setInterval(updateTimer, 1000);
 
-// Daily Quote Functionality
-async function loadQuotes() {
-  try {
-    const response = await fetch('quotes.csv'); // Fetch the CSV file
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // Daily Quote Functionality
+    async function loadQuotes() {
+      try {
+        const response = await fetch('quotes.csv'); // Fetch the CSV file
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.text();
+        const quotes = data.split('\n').slice(1).map(line => line.trim());
+        if (quotes.length === 0) {
+          throw new Error("Quotes array is empty or improperly formatted.");
+        }
+
+        const now = new Date();
+        const washingtonOffset = -5 * 60 * 60 * 1000; // UTC-5
+        const washingtonTime = new Date(now.getTime() + washingtonOffset);
+
+        const washingtonDayStart = new Date(
+          washingtonTime.getFullYear(),
+          washingtonTime.getMonth(),
+          washingtonTime.getDate(),
+          10, 0, 0, 0
+        ).getTime();
+
+        const dayIndex = Math.floor(washingtonDayStart / (1000 * 60 * 60 * 24)) % quotes.length;
+
+        const [quoteText, author] = quotes[dayIndex].split(';');
+        document.getElementById("quote").innerText = quoteText.trim();
+        document.getElementById("author").innerText = author ? author.trim() : "";
+      } catch (error) {
+        console.error("Error loading quotes:", error);
+        document.getElementById("quote").innerText = "Could not load the quote.";
+        document.getElementById("author").innerText = "";
+      }
     }
 
-    const data = await response.text();
-    console.log("Fetched CSV Data:", data); // Debugging log
-
-    // Parse CSV into an array of quotes
-    const quotes = data.split('\n').slice(1).map(line => line.trim());
-    console.log("Parsed Quotes Array:", quotes); // Debugging log
-
-    // Validate quotes array
-    if (quotes.length === 0) {
-      throw new Error("Quotes array is empty or improperly formatted.");
-    }
-
-    // Calculate the day index
-    const now = new Date();
-    const washingtonOffset = -5 * 60 * 60 * 1000; // UTC-5 in milliseconds
-    const washingtonTime = new Date(now.getTime() + washingtonOffset);
-    const washingtonDayStart = new Date(
-      washingtonTime.getFullYear(),
-      washingtonTime.getMonth(),
-      washingtonTime.getDate(),
-      10, 0, 0, 0
-    ).getTime();
-    const dayIndex = Math.floor(washingtonDayStart / (1000 * 60 * 60 * 24)) % quotes.length;
-
-    // Split the quote and author
-    const quoteData = quotes[dayIndex];
-    if (!quoteData || !quoteData.includes(';')) {
-      throw new Error(`Invalid quote data at index ${dayIndex}: "${quoteData}"`);
-    }
-
-    const [quoteText, author] = quoteData.split(';');
-    console.log("Selected Quote:", quoteText, author); // Debugging log
-
-    // Display the quote and author
-    document.getElementById("quote").innerText = quoteText.trim();
-    document.getElementById("author").innerText = author ? author.trim() : "";
-  } catch (error) {
-    console.error("Error loading quotes:", error);
-    document.getElementById("quote").innerText = "Could not load the quote.";
-    document.getElementById("author").innerText = "";
-  }
-}
-// Load quotes when the page loads
-loadQuotes();
-     </script>
+    loadQuotes();
+  </script>
 </body>
 </html>

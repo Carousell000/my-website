@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>Trump Countdown and Quotes</title>
+    <link>http://www.daystoendoftrumppresidency.com/</link>
+    <description>Daily updates on the time till the end of the Trump Presidency with a countdown timer and inspirational quotes.</description>
+    <lastBuildDate><?php echo date('r'); ?></lastBuildDate>
+    
+    <item>
+      <title>Countdown: 1454 Days</title>
+      <link>http://www.daystoendoftrumppresidency.com/</link>
+      <description>"Success usually comes to those who are too busy to be looking for it." - Henry David Thoreau</description>
+      <pubDate><?php echo date('r'); ?></pubDate>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,29 @@
+name: Generate Daily TikTok Video
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # Runs at 10 AM Washington time daily
+  workflow_dispatch:  # Allows manual triggering if needed
+
+jobs:
+  create-video:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: pip install moviepy requests
+
+      - name: Generate Video
+        run: python generate_tiktok_video.py
+
+      - name: Upload Video to Google Drive
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.GDRIVE_TOKEN }}" \
+          -F "file=@tiktok_countdown.mp4" "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"

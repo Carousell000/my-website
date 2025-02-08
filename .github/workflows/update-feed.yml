@@ -25,13 +25,24 @@ jobs:
         run: |
           python <<EOF
           import pandas as pd
-          from datetime import datetime, timedelta
+          from datetime import datetime
 
           # Load quotes
           quotes = pd.read_csv('quotes.csv')
 
-          # Get the current day's quote
-          day_index = (datetime.utcnow() - datetime(2029, 1, 21)).days % len(quotes)
+          # Correct reference date (January 21, 2029, at 10 AM Washington time)
+          target_date = datetime(2029, 1, 21, 10, 0)
+
+          # Get today's date in UTC
+          today = datetime.utcnow()
+
+          # Calculate the difference in days
+          days_remaining = (target_date - today).days
+
+          # Get the correct day index for quotes
+          day_index = days_remaining % len(quotes)
+
+          # Get the quote for today
           quote, author = quotes.iloc[day_index]['quote'], quotes.iloc[day_index]['author']
 
           # Generate RSS feed
@@ -43,7 +54,7 @@ jobs:
               <description>Daily updates with a countdown timer and inspirational quotes.</description>
               <lastBuildDate>{datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}</lastBuildDate>
               <item>
-                <title>Countdown: {abs(day_index)} Days</title>
+                <title>Countdown: {days_remaining} Days</title>
                 <link>http://www.daystoendoftrumppresidency.com/</link>
                 <description>"{quote}" - {author}</description>
                 <pubDate>{datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}</pubDate>

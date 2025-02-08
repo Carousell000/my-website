@@ -1,0 +1,65 @@
+name: Update RSS Feed
+
+on:
+  schedule:
+    - cron: '0 15 * * *' # Runs daily at 15:00 UTC (10 AM Washington time)
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  update-feed:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: pip install pandas
+
+      - name: Generate RSS Feed
+        run: |
+          python <<EOF
+          import pandas as pd
+          from datetime import datetime, timedelta
+
+          # Load quotes
+          quotes = pd.read_csv('quotes.csv')
+
+          # Get the current day's quote
+          day_index = (datetime.utcnow() - datetime(2029, 1, 21)).days % len(quotes)
+          quote, author = quotes.iloc[day_index]['quote'], quotes.iloc[day_index]['author']
+
+          # Generate RSS feed
+          feed = f'''<?xml version="1.0" encoding="UTF-8" ?>
+          <rss version="2.0">
+            <channel>
+              <title>Daily Countdown and Quotes</title>
+              <link>http://www.daystoendoftrumppresidency.com/</link>
+              <description>Daily updates with a countdown timer and inspirational quotes.</description>
+              <lastBuildDate>{datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}</lastBuildDate>
+              <item>
+                <title>Countdown: {abs(day_index)} Days</title>
+                <link>http://www.daystoendoftrumppresidency.com/</link>
+                <description>"{quote}" - {author}</description>
+                <pubDate>{datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')}</pubDate>
+              </item>
+            </channel>
+          </rss>'''
+
+          # Save to feed.xml
+          with open('feed.xml', 'w') as f:
+              f.write(feed)
+          EOF
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add feed.xml
+          git commit -m "Update RSS feed"
+          git push

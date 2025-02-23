@@ -3,9 +3,18 @@ from datetime import datetime
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-# Authenticate Google Drive
+# Authenticate Google Drive using service account credentials
 gauth = GoogleAuth()
-gauth.LocalWebserverAuth()  # Authenticates locally via a browser
+gauth.LoadCredentialsFile("credentials.json")
+
+if gauth.credentials is None:
+    gauth.LocalWebserverAuth()
+elif gauth.access_token_expired:
+    gauth.Refresh()
+else:
+    gauth.Authorize()
+
+gauth.SaveCredentialsFile("credentials.json")
 drive = GoogleDrive(gauth)
 
 # Countdown Logic
@@ -34,7 +43,7 @@ video_filename = "daily_countdown_video.mp4"
 final_clip.write_videofile(video_filename, fps=24)
 
 # Upload video to Google Drive
-folder_id = "1mfWyf9k2hljjxx2wGpqKgNMM-flwHta6"  # Your Google Drive folder ID
+folder_id = "1mfWyf9k2hljjxx2wGpqKgNMM-flwHta6"  # Replace with your actual Google Drive folder ID
 file_drive = drive.CreateFile({'title': video_filename, 'parents': [{'id': folder_id}]})
 file_drive.SetContentFile(video_filename)
 file_drive.Upload()

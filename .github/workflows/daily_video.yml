@@ -20,7 +20,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install moviepy pydrive
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Configure Google Drive Credentials
+        run: |
+          echo "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" > credentials.json
 
       - name: Generate and Upload Video
         run: python generate_daily_video.py

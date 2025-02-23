@@ -1,0 +1,26 @@
+name: Daily Countdown Video Upload
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # Runs daily at 10 AM Washington time
+  workflow_dispatch:
+
+jobs:
+  generate-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install Dependencies
+        run: |
+          pip install moviepy pydrive
+
+      - name: Generate and Upload Video
+        run: python generate_daily_video.py

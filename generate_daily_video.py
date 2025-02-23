@@ -2,8 +2,15 @@ from moviepy.editor import TextClip, CompositeVideoClip
 from datetime import datetime
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+import json
+import os
 
-# Authenticate Google Drive using service account credentials
+# Save the Google Drive credentials from GitHub Secrets
+with open("credentials.json", "w") as f:
+    credentials = os.environ.get("GOOGLE_DRIVE_CREDENTIALS")
+    f.write(credentials)
+
+# Authenticate Google Drive using the service account
 gauth = GoogleAuth()
 gauth.LoadCredentialsFile("credentials.json")
 
@@ -43,7 +50,7 @@ video_filename = "daily_countdown_video.mp4"
 final_clip.write_videofile(video_filename, fps=24)
 
 # Upload video to Google Drive
-folder_id = "1mfWyf9k2hljjxx2wGpqKgNMM-flwHta6"  # Replace with your actual Google Drive folder ID
+folder_id = "1mfWyf9k2hljjxx2wGpqKgNMM-flwHta6"  # Your Google Drive folder ID
 file_drive = drive.CreateFile({'title': video_filename, 'parents': [{'id': folder_id}]})
 file_drive.SetContentFile(video_filename)
 file_drive.Upload()

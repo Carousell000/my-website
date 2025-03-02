@@ -6,9 +6,14 @@ import json
 import os
 
 # Save the Google Drive credentials from GitHub Secrets
+credentials = os.environ.get("GOOGLE_DRIVE_CREDENTIALS")
+
+if credentials is None:
+    raise ValueError("Error: GOOGLE_DRIVE_CREDENTIALS secret is missing!")
+
 with open("credentials.json", "w") as f:
-    credentials = os.environ.get("GOOGLE_DRIVE_CREDENTIALS")
     f.write(credentials)
+
 
 # Authenticate Google Drive using the service account
 gauth = GoogleAuth()

@@ -23,21 +23,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # ✅ Debug Step: Check if GitHub Actions Receives the Secret
-      - name: Debug Google Drive Secret
-        run: |
-          if [ -z "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" ]; then
-            echo "GOOGLE_DRIVE_CREDENTIALS is missing or empty!"
-            exit 1
-          else
-            echo "GOOGLE_DRIVE_CREDENTIALS exists and is being passed correctly!"
-          fi
-
-
+      # ✅ Debug Step: Check if GitHub is passing `GOOGLE_DRIVE_CREDENTIALS`
+      - name: Check Environment Variables
+        run: printenv | grep GOOGLE
 
       - name: Configure Google Drive Credentials
         run: |
-          echo '${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}' > credentials.json
+          if [ -z "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" ]; then
+            echo "🚨 GOOGLE_DRIVE_CREDENTIALS is missing!"
+            exit 1
+          else
+            echo '${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}' > credentials.json
+            echo "✅ GOOGLE_DRIVE_CREDENTIALS has been saved!"
+          fi
 
       - name: Generate and Upload Video
         run: python generate_daily_video.py

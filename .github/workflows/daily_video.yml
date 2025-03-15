@@ -26,7 +26,13 @@ jobs:
       # ✅ Debug Step: Check if GitHub Actions Receives the Secret
       - name: Debug Google Drive Secret
         run: |
-          echo "Secret Length: ${#secrets.GOOGLE_DRIVE_CREDENTIALS}"
+          if [ -z "${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}" ]; then
+            echo "GOOGLE_DRIVE_CREDENTIALS is missing or empty!"
+            exit 1
+          else
+            echo "GOOGLE_DRIVE_CREDENTIALS exists and is being passed correctly!"
+          fi
+
 
 
       - name: Configure Google Drive Credentials

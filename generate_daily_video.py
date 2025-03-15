@@ -1,63 +1,56 @@
-from moviepy.editor import TextClip, CompositeVideoClip
-from datetime import datetime
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
-import json
 import os
+import json
+import base64
 
-# Save the Google Drive credentials from GitHub Secrets
-credentials = os.environ.get("GOOGLE_DRIVE_CREDENTIALS")
+# ✅ Step 1: Read Google Drive Credentials from Environment Variable
+encoded_credentials = os.environ.get("GOOGLE_DRIVE_CREDENTIALS")
 
-if credentials is None:
-    raise ValueError("Error: GOOGLE_DRIVE_CREDENTIALS secret is missing!")
+if not encoded_credentials:
+    raise ValueError("🚨 GOOGLE_DRIVE_CREDENTIALS secret is missing! Ensure it is set correctly in GitHub Secrets.")
 
-with open("credentials.json", "w") as f:
-    f.write(credentials)
+try:
+    # ✅ Step 2: Decode the Base64 secret
+    decoded_credentials = base64.b64decode(encoded_credentials).decode("utf-8")
+    
+    # ✅ Step 3: Convert the decoded string back to a JSON object
+    credentials_dict = json.loads(decoded_credentials)
+    
+    # ✅ Step 4: Save the decoded credentials to a file
+    with open("credentials.json", "w") as f:
+        json.dump(credentials_dict, f)
+    
+    print("✅ Credentials successfully saved to credentials.json")
 
+except Exception as e:
+    raise ValueError(f"🚨 Failed to process GOOGLE_DRIVE_CREDENTIALS: {e}")
 
-# Authenticate Google Drive using the service account
-gauth = GoogleAuth()
-gauth.LoadCredentialsFile("credentials.json")
+# ✅ Step 5: Import required libraries for video generation
+from moviepy.editor import *
+from datetime import datetime
 
-if gauth.credentials is None:
-    gauth.LocalWebserverAuth()
-elif gauth.access_token_expired:
-    gauth.Refresh()
-else:
-    gauth.Authorize()
-
-gauth.SaveCredentialsFile("credentials.json")
-drive = GoogleDrive(gauth)
-
-# Countdown Logic
+# ✅ Step 6: Generate Countdown Timer Text
 target_date = datetime(2029, 1, 21, 10, 0)  # January 21, 2029, 10 AM Washington time
-now = datetime.utcnow()
-days_remaining = (target_date - now).days
-
-# Load a quote from a text file (one quote per line)
-with open("quotes.txt", "r", encoding="utf-8") as file:
-    quotes = file.readlines()
-quote = quotes[days_remaining % len(quotes)].strip()
-
-# Create Video Clips
+today = datetime.utcnow()
+days_remaining = (target_date - today).days
 countdown_text = f"{days_remaining} Days Left"
-quote_text = f'"{quote}"'
 
-# Countdown Clip
-countdown_clip = TextClip(countdown_text, fontsize=100, color="white", size=(1080, 1920)).set_duration(10)
-quote_clip = TextClip(quote_text, fontsize=50, color="blue", size=(1080, 1920)).set_duration(10).set_position(('center', 'bottom'))
+# ✅ Step 7: Load Quote of the Day
+import pandas as pd
+quotes = pd.read_csv("quotes.csv")
+quote_index = days_remaining % len(quotes)
+quote, author = quotes.iloc[quote_index]["quote"], quotes.iloc[quote_index]["author"]
+quote_text = f'"{quote}"\n\n— {author}'
 
-# Combine Clips
-final_clip = CompositeVideoClip([countdown_clip, quote_clip])
+# ✅ Step 8: Create Video Clip
+video = ColorClip(size=(1080, 1920), color=(0, 0, 0), duration=10)
+countdown_txt = TextClip(countdown_text, fontsize=100, color="white", font="Arial-Bold").set_position("center").set_duration(10)
+quote_txt = TextClip(quote_text, fontsize=50, color="yellow", font="Arial-Italic").set_position(("center", 800)).set_duration(10)
 
-# Save the video locally
-video_filename = "daily_countdown_video.mp4"
-final_clip.write_videofile(video_filename, fps=24)
+# ✅ Step 9: Overlay Text on Video
+final_video = CompositeVideoClip([video, countdown_txt, quote_txt])
 
-# Upload video to Google Drive
-folder_id = "1mfWyf9k2hljjxx2wGpqKgNMM-flwHta6"  # Your Google Drive folder ID
-file_drive = drive.CreateFile({'title': video_filename, 'parents': [{'id': folder_id}]})
-file_drive.SetContentFile(video_filename)
-file_drive.Upload()
+# ✅ Step 10: Save Video
+video_path = "countdown_video.mp4"
+final_video.write_videofile(video_path, fps=24, codec="libx264")
 
-print("Video uploaded successfully to Google Drive.")
+print("✅ Video successfully generated:", video_path)

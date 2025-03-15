@@ -24,8 +24,10 @@ jobs:
           pip install -r requirements.txt
 
       # ✅ Debug Step: Check if GitHub Actions Receives the Secret
-      - name: Debug Environment Variables
-        run: env | grep GOOGLE
+      - name: Debug Google Drive Secret
+        run: |
+          echo "Secret Length: ${#secrets.GOOGLE_DRIVE_CREDENTIALS}"
+
 
       - name: Configure Google Drive Credentials
         run: |

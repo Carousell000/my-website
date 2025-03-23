@@ -2,27 +2,26 @@ import os
 import json
 import base64
 
-# ✅ Step 1: Read Google Drive Credentials from Environment Variable
+# 🔐 Get the encoded Google credentials from GitHub Secrets
 encoded_credentials = os.environ.get("GOOGLE_DRIVE_CREDENTIALS")
 
 if not encoded_credentials:
-    raise ValueError("🚨 GOOGLE_DRIVE_CREDENTIALS secret is missing! Ensure it is set correctly in GitHub Secrets.")
+    raise ValueError("🚨 GOOGLE_DRIVE_CREDENTIALS secret is missing! Ensure it's saved correctly in GitHub.")
 
 try:
-    # ✅ Step 2: Decode the Base64 secret
+    # 🔓 Decode the Base64 string
     decoded_credentials = base64.b64decode(encoded_credentials).decode("utf-8")
-    
-    # ✅ Step 3: Convert the decoded string back to a JSON object
+
+    # 🧾 Convert the string back into a JSON object
     credentials_dict = json.loads(decoded_credentials)
-    
-    # ✅ Step 4: Save the decoded credentials to a file
+
+    # 💾 Save it as credentials.json
     with open("credentials.json", "w") as f:
         json.dump(credentials_dict, f)
-    
-    print("✅ Credentials successfully saved to credentials.json")
 
+    print("✅ Google credentials saved to credentials.json")
 except Exception as e:
-    raise ValueError(f"🚨 Failed to process GOOGLE_DRIVE_CREDENTIALS: {e}")
+    raise ValueError(f"🚨 Failed to decode GOOGLE_DRIVE_CREDENTIALS: {e}")
 
 # ✅ Step 5: Import required libraries for video generation
 from moviepy.editor import *

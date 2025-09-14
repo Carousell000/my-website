@@ -136,25 +136,37 @@
           throw new Error("Quotes array is empty or improperly formatted.");
         }
 
-        const now = new Date();
-        const washingtonOffset = -5 * 60 * 60 * 1000; // UTC-5
-        const washingtonTime = new Date(now.getTime() + washingtonOffset);
+     const now = new Date();
+const washingtonOffset = -5 * 60 * 60 * 1000; // UTC-5
+const washingtonTime = new Date(now.getTime() + washingtonOffset);
+const washingtonDayStart = new Date(
+  washingtonTime.getFullYear(),
+  washingtonTime.getMonth(),
+  washingtonTime.getDate(),
+  10, 0, 0, 0
+).getTime();
 
-        const washingtonDayStart = new Date(
-          washingtonTime.getFullYear(),
-          washingtonTime.getMonth(),
-          washingtonTime.getDate(),
-          10, 0, 0, 0
-        ).getTime();
+// START: New logic for unique quote per day
+// Set the day you want the sequence to begin (year, month-1, day, hour, min, sec, ms):
+const quoteStart = new Date(2024, 12, 31, 10, 0, 0, 0); // Dec 31, 2024 at 10:00, adjust if needed
+const daysSinceStart = Math.floor((washingtonDayStart - quoteStart.getTime()) / (1000 * 60 * 60 * 24));
+let dayIndex = daysSinceStart;
+if (dayIndex < 0 || dayIndex >= quotes.length) {
+    dayIndex = null;
+}
 
-        const dayIndex = Math.floor(washingtonDayStart / (1000 * 60 * 60 * 24)) % quotes.length;
+if (dayIndex !== null) {
+    const [quoteText, author] = quotes[dayIndex].split(';');
+    if (!quoteText || !author) {
+      throw new Error(`Invalid quote or author format at index ${dayIndex}`);
+    }
+    document.getElementById("quote").innerText = quoteText.trim();
+    document.getElementById("author").innerText = author.trim();
+} else {
+    document.getElementById("quote").innerText = "";
+    document.getElementById("author").innerText = "";
 
-        const [quoteText, author] = quotes[dayIndex].split(';');
-        if (!quoteText || !author) {
-          throw new Error(`Invalid quote or author format at index ${dayIndex}`);
-        }
-        document.getElementById("quote").innerText = quoteText.trim();
-        document.getElementById("author").innerText = author.trim();
+
       } catch (error) {
         console.error("Error loading quotes:", error);
         document.getElementById("quote").innerText = "Could not load the quote.";
